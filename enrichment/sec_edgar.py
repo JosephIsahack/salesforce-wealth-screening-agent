@@ -19,7 +19,7 @@ from matching.fuzzy import build_name_variants, is_match
 logger = logging.getLogger(__name__)
 
 BASE_URL = "https://efts.sec.gov/LATEST/search-index"
-HEADERS = {"User-Agent": "amfAR-ProspectResearch/1.0 joseph.isahack@amfar.org"}
+HEADERS = {"User-Agent": "SalesforceWealthScreeningAgent/1.0 contact@example.com"}
 CACHE_DIR = "./cache/sec"
 CACHE_TTL = 60 * 60 * 24 * 7  # 7 days
 
