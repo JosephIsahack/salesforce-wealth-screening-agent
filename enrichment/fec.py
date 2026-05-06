@@ -20,7 +20,7 @@ from matching.fuzzy import build_name_variants, is_match, names_share_state
 logger = logging.getLogger(__name__)
 
 BASE_URL = "https://api.open.fec.gov/v1/schedules/schedule_a/"
-_DEFAULT_API_KEY = "AS5qJ86BnCP266mJGJxAhkk2wLk8IiFsxNZGCPzn"
+_DEMO_KEY = "DEMO_KEY"  # 1,000 req/hour shared limit — set FEC_API_KEY in .env for a dedicated key
 CACHE_DIR = "./cache/fec"
 CACHE_TTL = 60 * 60 * 24 * 30  # 30 days
 MIN_AMOUNT = 200
@@ -76,7 +76,7 @@ def fetch_donations(
     Uses keyset pagination. Results are cached for 30 days.
     """
     cache_key = f"fec:{last_name.lower()}:{first_name.lower()}:{(state or 'any').lower()}"
-    _api_key = api_key or _DEFAULT_API_KEY
+    _api_key = api_key or _DEMO_KEY
 
     with get_cache() as cache:
         if cache_key in cache:
