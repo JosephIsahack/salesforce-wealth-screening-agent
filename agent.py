@@ -46,7 +46,9 @@ class WealthScoringAgent:
                 self.sf.update_contact_score(contact_id, score)
 
                 if score >= self.config.high_value_threshold:
-                    if not self.sf.task_exists_for_contact(contact_id):
+                    if not self.config.sf_alert_owner_id:
+                        logger.info(f"High-value contact: {name} (score {score}) — no SF_ALERT_OWNER_ID set, skipping Task")
+                    elif not self.sf.task_exists_for_contact(contact_id):
                         self.sf.create_alert_task(contact, score, reasoning)
                         logger.info(f"Alert Task created for {name} (score {score})")
                     else:

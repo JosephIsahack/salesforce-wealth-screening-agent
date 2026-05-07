@@ -24,7 +24,6 @@ def load_config() -> Config:
     required = [
         "SF_USERNAME",
         "SF_CONSUMER_KEY",
-        "SF_ALERT_OWNER_ID",
     ]
     missing = [k for k in required if not os.getenv(k)]
     if missing:
@@ -36,7 +35,7 @@ def load_config() -> Config:
         sf_private_key_file=os.getenv("SF_PRIVATE_KEY_FILE", "server.key"),
         sf_wealth_score_field=os.getenv("SF_WEALTH_SCORE_FIELD", "Wealth_Score__c"),
         sf_processed_field=os.getenv("SF_PROCESSED_FIELD", "Wealth_Scan_Processed__c"),
-        sf_alert_owner_id=os.environ["SF_ALERT_OWNER_ID"],
+        sf_alert_owner_id=os.getenv("SF_ALERT_OWNER_ID", ""),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
         ollama_model=os.getenv("OLLAMA_MODEL", "gemma4:e4b"),
         fec_api_key=os.getenv("FEC_API_KEY", ""),
