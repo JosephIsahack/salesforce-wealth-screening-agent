@@ -64,17 +64,13 @@ Go to **Setup > Object Manager > Contact > Fields & Relationships > New**
 
 For both fields, edit Field-Level Security and grant **Read + Edit** to the profile used by your integration user.
 
-### 3. Get your security token
-
-If your org enforces IP restrictions: **Settings > Reset My Security Token** — Salesforce emails it to you.
-
-### 4. Get the Alert Owner's User ID
+### 3. Get the Alert Owner's User ID
 
 **Setup > Users** → click the target user → copy the 18-character ID from the URL bar.
 
-### 5. Verify API access
+### 5. Verify API access and Connected App
 
-The integration user's profile must have **"API Enabled"** checked under System Permissions.
+The integration user's profile must have **"API Enabled"** checked under System Permissions. The Connected App must have the JWT Bearer Flow grant type enabled and the integration user pre-authorised.
 
 ---
 
@@ -96,10 +92,9 @@ Edit `.env` with your credentials:
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `SF_USERNAME` | Yes | — | Salesforce login email |
-| `SF_PASSWORD` | Yes | — | Salesforce password |
-| `SF_SECURITY_TOKEN` | Yes | — | Salesforce security token |
-| `SF_DOMAIN` | No | `login` | Use `test` for sandbox orgs |
+| `SF_USERNAME` | Yes | — | Salesforce username |
+| `SF_CONSUMER_KEY` | Yes | — | Consumer key from your Salesforce Connected App |
+| `SF_PRIVATE_KEY_FILE` | No | `server.key` | Path to your RSA private key file |
 | `SF_WEALTH_SCORE_FIELD` | No | `Wealth_Score__c` | API name of the numeric score field |
 | `SF_PROCESSED_FIELD` | No | `Wealth_Scan_Processed__c` | API name of the boolean processed flag |
 | `SF_ALERT_OWNER_ID` | Yes | — | 18-char Salesforce User ID for Task assignment |

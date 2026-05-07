@@ -1,16 +1,48 @@
+import datetime
+import requests
+import jwt
 from simple_salesforce import Salesforce
 from config import Config
+
+TOKEN_ENDPOINT = "https://login.salesforce.com/services/oauth2/token"
+
+
+def _get_access_token(consumer_key: str, username: str, private_key_file: str) -> tuple[str, str]:
+    """Exchange a JWT assertion for a Salesforce access token via Bearer Flow.
+    Returns (access_token, instance_url).
+    """
+    with open(private_key_file, "r") as f:
+        private_key = f.read()
+
+    claim = {
+        "iss": consumer_key,
+        "sub": username,
+        "aud": "https://login.salesforce.com",
+        "exp": datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=5),
+    }
+    assertion = jwt.encode(claim, private_key, algorithm="RS256")
+
+    resp = requests.post(TOKEN_ENDPOINT, data={
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": assertion,
+    }, timeout=30)
+
+    if not resp.ok:
+        raise RuntimeError(f"Salesforce JWT auth failed: {resp.status_code} {resp.text[:200]}")
+
+    data = resp.json()
+    return data["access_token"], data["instance_url"]
 
 
 class SalesforceClient:
     def __init__(self, config: Config):
         self.config = config
-        self.sf = Salesforce(
-            username=config.sf_username,
-            password=config.sf_password,
-            security_token=config.sf_security_token,
-            domain=config.sf_domain,
+        access_token, instance_url = _get_access_token(
+            config.sf_consumer_key,
+            config.sf_username,
+            config.sf_private_key_file,
         )
+        self.sf = Salesforce(instance_url=instance_url, session_id=access_token)
 
     def get_unprocessed_contacts(self) -> list[dict]:
         """Return up to 200 Contacts where the processed flag is false or null."""
