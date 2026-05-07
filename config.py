@@ -14,7 +14,8 @@ class Config:
     sf_wealth_score_field: str
     sf_processed_field: str
     sf_alert_owner_id: str
-    anthropic_api_key: str
+    ollama_base_url: str
+    ollama_model: str
     fec_api_key: str
     poll_interval_seconds: int
     high_value_threshold: int
@@ -26,7 +27,6 @@ def load_config() -> Config:
         "SF_PASSWORD",
         "SF_SECURITY_TOKEN",
         "SF_ALERT_OWNER_ID",
-        "ANTHROPIC_API_KEY",
     ]
     missing = [k for k in required if not os.getenv(k)]
     if missing:
@@ -40,7 +40,8 @@ def load_config() -> Config:
         sf_wealth_score_field=os.getenv("SF_WEALTH_SCORE_FIELD", "Wealth_Score__c"),
         sf_processed_field=os.getenv("SF_PROCESSED_FIELD", "Wealth_Scan_Processed__c"),
         sf_alert_owner_id=os.environ["SF_ALERT_OWNER_ID"],
-        anthropic_api_key=os.environ["ANTHROPIC_API_KEY"],
+        ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+        ollama_model=os.getenv("OLLAMA_MODEL", "gemma4:e4b"),
         fec_api_key=os.getenv("FEC_API_KEY", ""),
         poll_interval_seconds=int(os.getenv("POLL_INTERVAL_SECONDS", "300")),
         high_value_threshold=int(os.getenv("HIGH_VALUE_THRESHOLD", "80")),

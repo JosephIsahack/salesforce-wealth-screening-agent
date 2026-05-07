@@ -1,15 +1,20 @@
 import json
-import anthropic
+import re
+from openai import OpenAI
 from config import Config
 
 
 class ClaudeClient:
     def __init__(self, config: Config):
-        self.client = anthropic.Anthropic(api_key=config.anthropic_api_key)
+        self.model = config.ollama_model
+        self.client = OpenAI(
+            base_url=config.ollama_base_url,
+            api_key="ollama",  # Ollama doesn't require a real key
+        )
 
     def estimate_wealth_score(self, contact: dict, enrichment: dict | None = None) -> tuple[int, str]:
         """
-        Ask Claude to estimate a wealth score (0-100) from contact fields and
+        Ask the local LLM to estimate a wealth score (0-100) from contact fields and
         any enrichment signals gathered from public APIs (FEC, EDGAR, ProPublica).
         Returns (score, reasoning).
         """
@@ -46,18 +51,28 @@ Scoring guidance:
 - Public records data may match other people with the same name — weight it as supporting evidence, not proof
 - Missing data should pull the score toward the median (50)"""
 
-        message = self.client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=512,
+        response = self.client.chat.completions.create(
+            model=self.model,
             messages=[{"role": "user", "content": prompt}],
         )
 
-        raw = message.content[0].text.strip()
-        parsed = json.loads(raw)
+        raw = response.choices[0].message.content.strip()
+        parsed = _parse_json(raw)
         score = max(0, min(100, int(parsed["score"])))
         reasoning = parsed["reasoning"]
 
         return score, reasoning
+
+
+def _parse_json(raw: str) -> dict:
+    """Parse JSON from LLM response, with fallback extraction if the model adds surrounding prose."""
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        match = re.search(r'\{.*\}', raw, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+        raise
 
 
 def _format_enrichment(enrichment: dict) -> str:
